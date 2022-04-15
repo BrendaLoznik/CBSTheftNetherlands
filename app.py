@@ -79,8 +79,20 @@ for feature in municipality_json['features']:
 st.set_page_config(
     page_title="Theft crimes in The Netherlands",
     page_icon="🐍",
-    layout="centered",  # wide
+    layout="wide",  # centered
     initial_sidebar_state="auto")  # collapsed
+
+
+# In[43]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[18]:
@@ -94,11 +106,10 @@ theft = st.sidebar.selectbox('Type of theft', ('bike theft', 'moped theft', 'mot
 #st.write('You selected:',theft)
 
 
-# In[19]:
+# In[42]:
 
 
-#create theft selectbox
-municipality = st.sidebar.selectbox('Municipality', ('Aa en Hunze', 'Aalburg', 'Aalsmeer', 'Aalten', 'Achtkarspelen',
+municipalities = ['<select>', 'Aa en Hunze', 'Aalburg', 'Aalsmeer', 'Aalten', 'Achtkarspelen',
        'Alblasserdam', 'Albrandswaard', 'Alkmaar', 'Almelo', 'Almere',
        'Alphen aan den Rijn', 'Alphen-Chaam', 'Altena', 'Ameland',
        'Amersfoort', 'Amstelveen', 'Amsterdam', 'Apeldoorn', 'Appingedam',
@@ -185,16 +196,19 @@ municipality = st.sidebar.selectbox('Municipality', ('Aa en Hunze', 'Aalburg', '
        'Zaanstad', 'Zaltbommel', 'Zandvoort', 'Zederik', 'Zeewolde',
        'Zeist', 'Zevenaar', 'Zoetermeer', 'Zoeterwoude', 'Zuidhorn',
        'Zuidplas', 'Zundert', 'Zutphen', 'Zwartewaterland', 'Zwijndrecht',
-       'Zwolle'))
+       'Zwolle']
 
-#st.write('You selected:',municipality)
+default_ix = municipalities.index('Amsterdam')
+municipality = st.sidebar.selectbox('municipalities', municipalities, index=default_ix)
 
 
 # In[20]:
 
 
 #create theft selectbox
-year= st.sidebar.selectbox('Year', ('2018', '2019', '2020', '2021'))
+#year= st.sidebar.selectbox('Year', ('2018', '2019', '2020', '2021'))
+year= st.sidebar.radio(label ='Year', options = ['2018', '2019', '2020', '2021'], index =2)
+st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
 
 #st.write('You selected:',year)
 
@@ -212,10 +226,75 @@ top =  st.sidebar.slider('How many types of theft do you want to see?', 1, 10, 5
 # In[ ]:
 
 
+st.title('Theft Dashboard The Netherlands')
 
+
+
+
+# 
+
+# ## 2.1 What is the most common type of theft?
+
+# In[ ]:
+
+
+if theft ==  'bike theft':
+    label = 'Worst places to park your bike'
+elif theft =='moped theft':
+        label = 'Worst places to park your moped'
+else:
+    label = 'other'
+
+#st.subheader('Worst places to park your bike')
+st.subheader(label)
+
+
+# In[ ]:
+
+
+common_crime = data.groupby(['year', 'theft'])['count'].sum().reset_index()
+common_crime['rank'] = common_crime.groupby(by=['year'])['count'].transform(lambda x: x.rank(ascending=False))
+common_crime['year'] = common_crime['year'].astype('str')
+common_crime = common_crime.sort_values(['year', 'rank'])
+
+#select top rank
+#top = int(top)
+top_rank = np.arange(1, top+1 , 1).tolist()
+common_crime= common_crime[(common_crime['rank'].isin(top_rank))]
+
+
+# In[ ]:
+
+
+#create bar plot
+fig2 = px.bar(data_frame = common_crime, 
+             x = 'year',
+             y = 'count',
+             height = 500,
+            #  text_auto=True,
+             #text_auto='.2s',
+             color = 'theft',
+         #   color_discrete_map = {'bike': 'rgb(0,0,128)', 'shoplifting': 'rgb(235,207,52)'},
+             color_discrete_sequence = px.colors.qualitative.Prism,
+             hover_name = 'theft',
+            hover_data = {'theft': False, 'year': False, 'count': True}
+            )
+
+#update layout
+fig2.update_layout({ 'title': {'text': 'Top ' + str(top) + ' most common thefts in The Netherlands by year', 'x': 0.5},
+                     'legend': {'title': 'Type of theft'},
+                  })
+
+st.plotly_chart(fig2)
 
 
 # ## 2.2 Where do the thefts occure?
+
+# In[ ]:
+
+
+st.subheader('My sub')
+
 
 # In[27]:
 
@@ -226,12 +305,6 @@ data_graph ['year'] = data_graph ['year'].astype('str')
 data_graph = data_graph  [data_graph ['year']==year]
 data_graph = data_graph[['id', 'province', 'municipality', 'year', theft]]
 data_graph  ['log scale'] = np.log10(data_graph [theft]+1)
-
-
-# In[ ]:
-
-
-st.markdown( **'hello'**)
 
 
 # In[29]:
@@ -269,52 +342,54 @@ st.plotly_chart(fig1)
 # In[ ]:
 
 
-## 2.3 What is the most common type of theft?
+st.subheader('My sub')
 
 
-# In[32]:
+# ## 2.3 Greatest risk
+
+# In[ ]:
 
 
-common_crime = data.groupby(['year', 'theft'])['count'].sum().reset_index()
-common_crime['rank'] = common_crime.groupby(by=['year'])['count'].transform(lambda x: x.rank(ascending=False))
-common_crime['year'] = common_crime['year'].astype('str')
-common_crime = common_crime.sort_values(['year', 'rank'])
-
-#select top rank
-#top = int(top)
-top_rank = np.arange(1, top+1 , 1).tolist()
-common_crime= common_crime[(common_crime['rank'].isin(top_rank))]
-
-
-# In[31]:
-
-
-#create bar plot
-fig2 = px.bar(data_frame = common_crime, 
-             x = 'year',
-             y = 'count',
-             height = 500,
-            #  text_auto=True,
-             #text_auto='.2s',
-             color = 'theft',
-         #   color_discrete_map = {'bike': 'rgb(0,0,128)', 'shoplifting': 'rgb(235,207,52)'},
-             color_discrete_sequence = px.colors.qualitative.Prism,
-             hover_name = 'theft',
-            hover_data = {'theft': False, 'year': False, 'count': True}
-            )
-
-#update layout
-fig2.update_layout({ 'title': {'text': 'Top ' + str(top) + ' most common thefts in The Netherlands by year', 'x': 0.5},
-                     'legend': {'title': 'Type of theft'},
-                  })
-
-st.plotly_chart(fig2)
+worst_crime = data.groupby(['year',  'municipality', 'theft'])['count'].sum().reset_index()
+worst_crime = worst_crime.sort_values(['year', 'theft', 'count'], ascending=[True,False, False]) 
+worst_crime ['rank'] = worst_crime .groupby(by=['year', 'theft'])['count'].transform(lambda x: x.rank(ascending=False))
+worst_crime = worst_crime[['year', 'theft', 'rank', 'count', 'municipality']]
+worst_crime ['year'] = worst_crime ['year'].astype('str')
+worst_crime = worst_crime[(worst_crime['theft']== theft)  & (worst_crime['year']== year)]
+worst_crime  = worst_crime[0:10]
+worst_crime   = worst_crime.sort_values('rank', ascending = False)
 
 
 # In[ ]:
 
 
-## 2.4 Crime in your municipality
+#create bar plot
+fig5 = px.bar(data_frame = worst_crime ,
+             y = 'municipality',
+             x = 'count',
+             height = 500,
+              text_auto=True,
+            # text_auto='.2s',
+             orientation = 'h',
+             color_discrete_sequence  = ['rgb(95, 70,144)'],
+            hover_data = {'municipality': False,  'count': False}
+            )
+
+#update layout
+fig5.update_layout({ 'title': {'text': 'Top 10 municipalities with the highest rate of ' + theft + ' in ' + str(year) , 'x': 0.5},
+                   'yaxis': {'title': {'text' : ''}} ,
+                  })
+
+
+st.plotly_chart(fig5)
+
+
+# ## 2.4 Crime in your municipality
+
+# In[ ]:
+
+
+st.subheader('My sub')
 
 
 # In[33]:
@@ -338,7 +413,8 @@ fig3 = px.bar(data_frame = municipality_crime,
              height = 500,
               text_auto=True,
             # text_auto='.2s',
-             color_discrete_sequence = px.colors.qualitative.Prism,
+            # color_discrete_sequence = px.colors.qualitative.Prism,
+              color_discrete_sequence  = ['rgb(29, 105, 150)'],
             hover_data = {'theft': False,  'count': False}
             )
 
@@ -350,11 +426,7 @@ fig3.update_layout({ 'title': {'text': 'Most common theft crimes in ' + municipa
 st.plotly_chart(fig3)
 
 
-# In[ ]:
-
-
-## 2.4 Municipality theft trends
-
+# ## 2.5 Municipality theft trends
 
 # In[35]:
 
@@ -404,50 +476,37 @@ else:
 fig4.update_layout({ 'title': {'text':  label + ' trend in ' +  municipality , 'x': 0.5},
                   })
 
-st.plotly_chart(fig4)
+#st.plotly_chart(fig4)
 
 
 # In[ ]:
 
 
-## 2.5 Greatest risk
 
 
-# In[37]:
+
+# In[ ]:
 
 
-worst_crime = data.groupby(['year',  'municipality', 'theft'])['count'].sum().reset_index()
-worst_crime = worst_crime.sort_values(['year', 'theft', 'count'], ascending=[True,False, False]) 
-worst_crime ['rank'] = worst_crime .groupby(by=['year', 'theft'])['count'].transform(lambda x: x.rank(ascending=False))
-worst_crime = worst_crime[['year', 'theft', 'rank', 'count', 'municipality']]
-worst_crime ['year'] = worst_crime ['year'].astype('str')
-worst_crime = worst_crime[(worst_crime['theft']== theft)  & (worst_crime['year']== year)]
-worst_crime  = worst_crime[0:10]
-worst_crime   = worst_crime.sort_values('rank', ascending = False)
 
 
-# In[39]:
+
+# In[ ]:
 
 
-#create bar plot
-fig5 = px.bar(data_frame = worst_crime ,
-             y = 'municipality',
-             x = 'count',
-             height = 500,
-              text_auto=True,
-            # text_auto='.2s',
-             orientation = 'h',
-             color_discrete_sequence  = ['rgb(29, 105, 150)'],
-            hover_data = {'municipality': False,  'count': False}
-            )
-
-#update layout
-fig5.update_layout({ 'title': {'text': 'Top 10 municipalities with the highest rate of ' + theft + ' in ' + str(year) , 'x': 0.5},
-                   'yaxis': {'title': {'text' : ''}} ,
-                  })
 
 
-st.plotly_chart(fig5)
+
+# In[ ]:
+
+
+
+
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
