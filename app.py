@@ -31,27 +31,21 @@ import streamlit as st
 ## 1.2 Load data
 
 
-# In[3]:
+# In[21]:
 
 
 #load cleaned dataset
-data = pd.read_csv(r'D:\Jupyter Notebooks\cbs-diefstal\data\data.csv')
+#data = pd.read_csv(r'D:\Jupyter Notebooks\cbs-diefstal\data\data.csv')
+#data = pd.read_csv('data\data.csv')
+data = pd.read_csv('data.csv')
 data.head()
 
 
-# In[4]:
-
-
-#load cleaned dataset
-data = pd.read_csv(r'D:\Jupyter Notebooks\cbs-diefstal\data\data.csv')
-data.head()
-
-
-# In[5]:
+# In[22]:
 
 
 #load pivoted dataset
-data_pivot = pd.read_csv(r'D:\Jupyter Notebooks\cbs-diefstal\data\data_pivot.csv',  dtype={'id': 'str'})
+data_pivot = pd.read_csv('data_pivot.csv',  dtype={'id': 'str'})
 data_pivot.head()
 
 
