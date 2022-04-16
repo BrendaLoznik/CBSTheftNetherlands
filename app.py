@@ -13,7 +13,7 @@
 ## 1.1 Load libraries
 
 
-# In[3]:
+# In[1]:
 
 
 import pandas as pd
@@ -25,13 +25,13 @@ import mapbox
 import streamlit as st
 
 
-# In[4]:
+# In[2]:
 
 
 ## 1.2 Load data
 
 
-# In[9]:
+# In[3]:
 
 
 #load cleaned dataset
@@ -39,7 +39,7 @@ data = pd.read_csv(r'D:\Jupyter Notebooks\cbs-diefstal\data\data.csv')
 data.head()
 
 
-# In[10]:
+# In[4]:
 
 
 #load cleaned dataset
@@ -47,7 +47,7 @@ data = pd.read_csv(r'D:\Jupyter Notebooks\cbs-diefstal\data\data.csv')
 data.head()
 
 
-# In[14]:
+# In[5]:
 
 
 #load pivoted dataset
@@ -55,7 +55,7 @@ data_pivot = pd.read_csv(r'D:\Jupyter Notebooks\cbs-diefstal\data\data_pivot.csv
 data_pivot.head()
 
 
-# In[11]:
+# In[6]:
 
 
 #geojson
@@ -66,27 +66,27 @@ for feature in municipality_json['features']:
     feature['id'] = feature['properties']['code']
 
 
-# In[12]:
+# In[7]:
 
 
 # 2 Streamlit settings
 
 
-# In[17]:
+# In[8]:
 
 
 # page conf
 st.set_page_config(
-    page_title="Theft crimes in The Netherlands",
-    page_icon="🐍",
+    page_title="Thefts in The Netherlands",
+    page_icon=':cop:',
     layout="wide",  # centered
     initial_sidebar_state="auto")  # collapsed
 
+t1, t2 = st.columns((0.1,1)) #0.07,1
 
-# In[43]:
-
-
-
+t1.image('index.png', width = 120)
+t2.title("Statistics Netherlands - Reported Thefts")
+#t2.markdown(" **tel:** 01392 451192 **| website:** https://www.swast.nhs.uk **| email:** mailto:data.science@swast.nhs.uk")
 
 
 # In[ ]:
@@ -99,107 +99,23 @@ st.set_page_config(
 
 
 #create theft selectbox
-theft = st.sidebar.selectbox('Type of theft', ('bike theft', 'moped theft', 'motorcycle/scooter theft',
-      'car theft', 'boat theft', 'animal theft', 'street robbery',
-      'pickpocketing', 'shoplifting', 'heist'))
+#theft = st.sidebar.selectbox('Type of theft', ('bike theft', 'moped theft', 'motorcycle/scooter theft',
+     # 'car theft', 'boat theft', 'animal theft', 'street robbery',
+
+    # 'pickpocketing', 'shoplifting', 'heist'))
+thefts = data['theft'].unique()       
+theft = st.sidebar.selectbox('Type of theft', (thefts))
+
 
 #st.write('You selected:',theft)
 
 
-# In[42]:
+# In[12]:
 
 
-municipalities = ['<select>', 'Aa en Hunze', 'Aalburg', 'Aalsmeer', 'Aalten', 'Achtkarspelen',
-       'Alblasserdam', 'Albrandswaard', 'Alkmaar', 'Almelo', 'Almere',
-       'Alphen aan den Rijn', 'Alphen-Chaam', 'Altena', 'Ameland',
-       'Amersfoort', 'Amstelveen', 'Amsterdam', 'Apeldoorn', 'Appingedam',
-       'Arnhem', 'Assen', 'Asten', 'Baarle-Nassau', 'Baarn',
-       'Barendrecht', 'Barneveld', 'Bedum', 'Beek', 'Beekdaelen',
-       'Beemster', 'Beesel', 'Berg en Dal', 'Bergeijk', 'Bergen (L.)',
-       'Bergen (NH.)', 'Bergen op Zoom', 'Berkelland', 'Bernheze', 'Best',
-       'Beuningen', 'Beverwijk', 'De Bilt', 'Binnenmaas', 'Bladel',
-       'Blaricum', 'Bloemendaal', 'Bodegraven-Reeuwijk', 'Boekel',
-       'Ten Boer', 'Borger-Odoorn', 'Borne', 'Borsele', 'Boxmeer',
-       'Boxtel', 'Breda', 'Brielle', 'Bronckhorst', 'Brummen', 'Brunssum',
-       'Bunnik', 'Bunschoten', 'Buren', 'Capelle aan den IJssel',
-       'Castricum', 'Coevorden', 'Cranendonck', 'Cromstrijen', 'Cuijk',
-       'Culemborg', 'Dalfsen', 'Dantumadiel', 'Delft', 'Delfzijl',
-       'Deurne', 'Deventer', 'Diemen', 'Dinkelland', 'Doesburg',
-       'Doetinchem', 'Dongen', 'Dongeradeel', 'Dordrecht', 'Drechterland',
-       'Drimmelen', 'Dronten', 'Druten', 'Duiven', 'Echt-Susteren',
-       'Edam-Volendam', 'Ede', 'Eemnes', 'Eemsdelta', 'Eemsmond',
-       'Eersel', 'Eijsden-Margraten', 'Eindhoven', 'Elburg', 'Emmen',
-       'Enkhuizen', 'Enschede', 'Epe', 'Ermelo', 'Etten-Leur',
-       'Ferwerderadiel', 'De Fryske Marren', 'Geertruidenberg',
-       'Geldermalsen', 'Geldrop-Mierlo', 'Gemert-Bakel', 'Gennep',
-       'Giessenlanden', 'Gilze en Rijen', 'Goeree-Overflakkee', 'Goes',
-       'Goirle', 'Gooise Meren', 'Gorinchem', 'Gouda', 'Grave',
-       "'s-Gravenhage", 'Groningen', 'Grootegast', 'Gulpen-Wittem',
-       'Haaksbergen', 'Haaren', 'Haarlem',
-       'Haarlemmerliede en Spaarnwoude', 'Haarlemmermeer', 'Halderberge',
-       'Hardenberg', 'Harderwijk', 'Hardinxveld-Giessendam', 'Haren',
-       'Harlingen', 'Hattem', 'Heemskerk', 'Heemstede', 'Heerde',
-       'Heerenveen', 'Heerhugowaard', 'Heerlen', 'Heeze-Leende', 'Heiloo',
-       'Den Helder', 'Hellendoorn', 'Hellevoetsluis', 'Helmond',
-       'Hendrik-Ido-Ambacht', 'Hengelo', "'s-Hertogenbosch", 'Heumen',
-       'Heusden', 'Hillegom', 'Hilvarenbeek', 'Hilversum',
-       'Hoeksche Waard', 'Hof van Twente', 'Het Hogeland',
-       'Hollands Kroon', 'Hoogeveen', 'Hoorn', 'Horst aan de Maas',
-       'Houten', 'Huizen', 'Hulst', 'IJsselstein', 'Kaag en Braassem',
-       'Kampen', 'Kapelle', 'Katwijk', 'Kerkrade', 'Koggenland',
-       'Kollumerland en Nieuwkruisland', 'Korendijk',
-       'Krimpen aan den IJssel', 'Krimpenerwaard', 'Laarbeek', 'Landerd',
-       'Landgraaf', 'Landsmeer', 'Langedijk', 'Lansingerland', 'Laren',
-       'Leek', 'Leerdam', 'Leeuwarden', 'Leiden', 'Leiderdorp',
-       'Leidschendam-Voorburg', 'Lelystad', 'Leudal', 'Leusden',
-       'Lingewaal', 'Lingewaard', 'Lisse', 'Lochem', 'Loon op Zand',
-       'Lopik', 'Loppersum', 'Losser', 'Maasdriel', 'Maasgouw',
-       'Maassluis', 'Maastricht', 'De Marne', 'Marum', 'Medemblik',
-       'Meerssen', 'Meierijstad', 'Meppel', 'Middelburg',
-       'Midden-Delfland', 'Midden-Drenthe', 'Midden-Groningen',
-       'Mill en Sint Hubert', 'Moerdijk', 'Molenlanden', 'Molenwaard',
-       'Montferland', 'Montfoort', 'Mook en Middelaar', 'Neder-Betuwe',
-       'Nederweert', 'Neerijnen', 'Nieuwegein', 'Nieuwkoop', 'Nijkerk',
-       'Nijmegen', 'Nissewaard', 'Noardeast-Fryslân', 'Noord-Beveland',
-       'Noordenveld', 'Noordoostpolder', 'Noordwijk', 'Noordwijkerhout',
-       'Nuenen, Gerwen en Nederwetten', 'Nunspeet', 'Nuth', 'Oegstgeest',
-       'Oirschot', 'Oisterwijk', 'Oldambt', 'Oldebroek', 'Oldenzaal',
-       'Olst-Wijhe', 'Ommen', 'Onderbanken', 'Oost Gelre', 'Oosterhout',
-       'Ooststellingwerf', 'Oostzaan', 'Opmeer', 'Opsterland', 'Oss',
-       'Oud-Beijerland', 'Oude IJsselstreek', 'Ouder-Amstel', 'Oudewater',
-       'Overbetuwe', 'Papendrecht', 'Peel en Maas', 'Pekela',
-       'Pijnacker-Nootdorp', 'Purmerend', 'Putten', 'Raalte',
-       'Reimerswaal', 'Renkum', 'Renswoude', 'Reusel-De Mierden',
-       'Rheden', 'Rhenen', 'Ridderkerk', 'Rijssen-Holten', 'Rijswijk',
-       'Roerdalen', 'Roermond', 'De Ronde Venen', 'Roosendaal',
-       'Rotterdam', 'Rozendaal', 'Rucphen', 'Schagen', 'Scherpenzeel',
-       'Schiedam', 'Schiermonnikoog', 'Schinnen', 'Schouwen-Duiveland',
-       'Simpelveld', 'Sint Anthonis', 'Sint-Michielsgestel',
-       'Sittard-Geleen', 'Sliedrecht', 'Sluis', 'Smallingerland', 'Soest',
-       'Someren', 'Son en Breugel', 'Stadskanaal', 'Staphorst',
-       'Stede Broec', 'Steenbergen', 'Steenwijkerland', 'Stein',
-       'Stichtse Vecht', 'Strijen', 'Súdwest-Fryslân', 'Terneuzen',
-       'Terschelling', 'Texel', 'Teylingen', 'Tholen', 'Tiel', 'Tilburg',
-       'Tubbergen', 'Twenterand', 'Tynaarlo', 'Tytsjerksteradiel', 'Uden',
-       'Uitgeest', 'Uithoorn', 'Urk', 'Utrecht', 'Utrechtse Heuvelrug',
-       'Vaals', 'Valkenburg aan de Geul', 'Valkenswaard', 'Veendam',
-       'Veenendaal', 'Veere', 'Veldhoven', 'Velsen', 'Venlo', 'Venray',
-       'Vianen', 'Vijfheerenlanden', 'Vlaardingen', 'Vlieland',
-       'Vlissingen', 'Voerendaal', 'Voorschoten', 'Voorst', 'Vught',
-       'Waadhoeke', 'Waalre', 'Waalwijk', 'Waddinxveen', 'Wageningen',
-       'Wassenaar', 'Waterland', 'Weert', 'Weesp', 'Werkendam',
-       'West Betuwe', 'West Maas en Waal', 'Westerkwartier', 'Westerveld',
-       'Westervoort', 'Westerwolde', 'Westland', 'Weststellingwerf',
-       'Westvoorne', 'Wierden', 'Wijchen', 'Wijdemeren',
-       'Wijk bij Duurstede', 'Winsum', 'Winterswijk', 'Woensdrecht',
-       'Woerden', 'De Wolden', 'Wormerland', 'Woudenberg', 'Woudrichem',
-       'Zaanstad', 'Zaltbommel', 'Zandvoort', 'Zederik', 'Zeewolde',
-       'Zeist', 'Zevenaar', 'Zoetermeer', 'Zoeterwoude', 'Zuidhorn',
-       'Zuidplas', 'Zundert', 'Zutphen', 'Zwartewaterland', 'Zwijndrecht',
-       'Zwolle']
-
+municipalities = data['municipality'].unique().tolist()
 default_ix = municipalities.index('Amsterdam')
-municipality = st.sidebar.selectbox('municipalities', municipalities, index=default_ix)
+municipality = st.sidebar.selectbox('Select a municipality', municipalities, index=default_ix)
 
 
 # In[20]:
@@ -216,42 +132,52 @@ st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', uns
 # In[21]:
 
 
-# Create top x slider
-
-#st.subheader('Slider')
+#create top x slider
 top =  st.sidebar.slider('How many types of theft do you want to see?', 1, 10, 5)
 #st.write("You selected top ", top ,' thefts')
+
+
+# 
+
+# In[ ]:
+
+
+
 
 
 # In[ ]:
 
 
-st.title('Theft Dashboard The Netherlands')
 
 
-
-
-# 
 
 # ## 2.1 What is the most common type of theft?
 
 # In[ ]:
 
 
-if theft ==  'bike theft':
-    label = 'Worst places to park your bike'
-elif theft =='moped theft':
-        label = 'Worst places to park your moped'
-else:
-    label = 'other'
+col1, col2, col3 = st.columns(3)
 
-#st.subheader('Worst places to park your bike')
-st.subheader(label)
+with col1:
+    st.write(' ')
+
+with col2:
+    st.subheader('Top ' + str(top) + ' most common thefts by year')
+
+with col3:
+    st.write(' ')
 
 
 # In[ ]:
 
 
+col4, col5 = st.columns([3, 0.1])
+
+
+# In[ ]:
+
+
+#create df
 common_crime = data.groupby(['year', 'theft'])['count'].sum().reset_index()
 common_crime['rank'] = common_crime.groupby(by=['year'])['count'].transform(lambda x: x.rank(ascending=False))
 common_crime['year'] = common_crime['year'].astype('str')
@@ -270,7 +196,7 @@ common_crime= common_crime[(common_crime['rank'].isin(top_rank))]
 fig2 = px.bar(data_frame = common_crime, 
              x = 'year',
              y = 'count',
-             height = 500,
+             height = 600,
             #  text_auto=True,
              #text_auto='.2s',
              color = 'theft',
@@ -281,11 +207,12 @@ fig2 = px.bar(data_frame = common_crime,
             )
 
 #update layout
-fig2.update_layout({ 'title': {'text': 'Top ' + str(top) + ' most common thefts in The Netherlands by year', 'x': 0.5},
+fig2.update_layout({ #'title': {'text': 'Top ' + str(top) + ' most common thefts in The Netherlands by year', 'x': 0.5},
                      'legend': {'title': 'Type of theft'},
                   })
 
-st.plotly_chart(fig2)
+#st.plotly_chart(fig2)
+col4.plotly_chart(fig2, use_container_width=True) 
 
 
 # ## 2.2 Where do the thefts occure?
@@ -293,7 +220,13 @@ st.plotly_chart(fig2)
 # In[ ]:
 
 
-st.subheader('My sub')
+col6, col7 = st.columns(2)
+
+with col6:
+    st.subheader('Registered '+ theft + ' in The Netherlands in '+ str(year))
+    
+with col7:
+    st.subheader('Top 10 municipalities with the highest rate of ' + theft + ' in ' + str(year))
 
 
 # In[27]:
@@ -331,18 +264,13 @@ fig1 = px.choropleth_mapbox(data_frame = data_graph,
 
 
 #update layout
-fig1.update_layout({ 'title': {'text': 'Registered '+ theft + ' in The Netherlands in '+ str(year), 'x': 0.5},
+fig1.update_layout({ #'title': {'text': 'Registered '+ theft + ' in The Netherlands in '+ str(year), 'x': 0.5},
                      'legend': {'title': 'log scale'},
                   })
 
 
-st.plotly_chart(fig1)
-
-
-# In[ ]:
-
-
-st.subheader('My sub')
+#st.plotly_chart(fig1)
+col6.plotly_chart(fig1, use_container_width=True) 
 
 
 # ## 2.3 Greatest risk
@@ -367,7 +295,7 @@ worst_crime   = worst_crime.sort_values('rank', ascending = False)
 fig5 = px.bar(data_frame = worst_crime ,
              y = 'municipality',
              x = 'count',
-             height = 500,
+             height = 800,
               text_auto=True,
             # text_auto='.2s',
              orientation = 'h',
@@ -376,77 +304,19 @@ fig5 = px.bar(data_frame = worst_crime ,
             )
 
 #update layout
-fig5.update_layout({ 'title': {'text': 'Top 10 municipalities with the highest rate of ' + theft + ' in ' + str(year) , 'x': 0.5},
+fig5.update_layout({ #'title': {'text': 'Top 10 municipalities with the highest rate of ' + theft + ' in ' + str(year) , 'x': 0.5},
                    'yaxis': {'title': {'text' : ''}} ,
                   })
 
 
-st.plotly_chart(fig5)
+#st.plotly_chart(fig5)
+col7.plotly_chart(fig5, use_container_width=True) 
 
 
 # ## 2.4 Crime in your municipality
 
 # In[ ]:
 
-
-st.subheader('My sub')
-
-
-# In[33]:
-
-
-#create df
-municipality_crime = data.groupby(['year',  'municipality', 'theft'])['count'].sum().reset_index()
-municipality_crime ['rank'] = municipality_crime .groupby(by=['municipality', 'year'])['count'].transform(lambda x: x.rank(ascending=False))
-municipality_crime ['year'] = municipality_crime ['year'].astype('str')
-municipality_crime = municipality_crime[(municipality_crime['year']==year) & (municipality_crime['municipality']==municipality)]
-municipality_crime = municipality_crime .sort_values('rank')
-
-
-# In[34]:
-
-
-#create bar plot
-fig3 = px.bar(data_frame = municipality_crime,
-             x = 'theft',
-             y = 'count',
-             height = 500,
-              text_auto=True,
-            # text_auto='.2s',
-            # color_discrete_sequence = px.colors.qualitative.Prism,
-              color_discrete_sequence  = ['rgb(29, 105, 150)'],
-            hover_data = {'theft': False,  'count': False}
-            )
-
-#update layout
-fig3.update_layout({ 'title': {'text': 'Most common theft crimes in ' + municipality + ' in ' + str(year)  , 'x': 0.5},
-                   'xaxis': {'title': {'text' : ''}} ,
-                  })
-
-st.plotly_chart(fig3)
-
-
-# ## 2.5 Municipality theft trends
-
-# In[35]:
-
-
-#create dataset
-municipality_trend = data.groupby(['year',  'municipality', 'theft'])['count'].sum().reset_index()
-municipality_trend  =municipality_trend .sort_values(['municipality', 'theft', 'year','count'], ascending=[True,True, True, True]) 
-municipality_trend ['year'] = municipality_trend['year'].astype('str')
-municipality_trend = municipality_trend[(municipality_trend ['municipality']== municipality) & (municipality_trend ['theft']== theft)  ]
-
-
-# In[36]:
-
-
-fig4 = px.line(data_frame = municipality_trend,
-             x= 'year',
-             y = 'count',
-             color_discrete_sequence  = ['rgb(56, 166, 165)'],
-            hover_data = {'year': False,  'count': True}
-             )
 
 #set custom label
 if theft =='street robbery':
@@ -472,45 +342,82 @@ elif theft == 'animal theft':
 else:
     label = 'other'
 
+
+# In[ ]:
+
+
+col8, col9 = st.columns(2)
+
+with col8:
+    st.subheader('Most common theft crimes in ' + municipality + ' in ' + str(year) )
+    
+with col9:
+    st.subheader( label + ' trend in ' +  municipality )
+
+
+# In[33]:
+
+
+#create df
+municipality_crime = data.groupby(['year',  'municipality', 'theft'])['count'].sum().reset_index()
+municipality_crime ['rank'] = municipality_crime .groupby(by=['municipality', 'year'])['count'].transform(lambda x: x.rank(ascending=False))
+municipality_crime ['year'] = municipality_crime ['year'].astype('str')
+municipality_crime = municipality_crime[(municipality_crime['year']==year) & (municipality_crime['municipality']==municipality)]
+municipality_crime = municipality_crime .sort_values('rank')
+
+
+# In[34]:
+
+
+#create bar plot
+fig3 = px.bar(data_frame = municipality_crime,
+             x = 'theft',
+             y = 'count',
+             height = 600,
+              text_auto=True,
+            # text_auto='.2s',
+            # color_discrete_sequence = px.colors.qualitative.Prism,
+              color_discrete_sequence  = ['rgb(29, 105, 150)'],
+            hover_data = {'theft': False,  'count': False}
+            )
+
+#update layout
+fig3.update_layout({ #'title': {'text': 'Most common theft crimes in ' + municipality + ' in ' + str(year)  , 'x': 0.5},
+                   'xaxis': {'title': {'text' : ''}} ,
+                  })
+
+#st.plotly_chart(fig3)
+col8.plotly_chart(fig3, use_container_width=True) 
+
+
+# ## 2.5 Municipality theft trends
+
+# In[46]:
+
+
+#create dataset
+municipality_trend = data.groupby(['year',  'municipality', 'theft'])['count'].sum().reset_index()
+municipality_trend  =municipality_trend .sort_values(['municipality', 'theft', 'year','count'], ascending=[True,True, True, True]) 
+municipality_trend ['year'] = municipality_trend['year'].astype('str')
+municipality_trend = municipality_trend[(municipality_trend ['municipality']== municipality) & (municipality_trend ['theft']== theft)  ]
+
+
+# In[36]:
+
+
+fig4 = px.line(data_frame = municipality_trend,
+             x= 'year',
+             y = 'count',
+            height = 600,
+             color_discrete_sequence  = ['rgb(56, 166, 165)'],
+            hover_data = {'year': False,  'count': True}
+             )
+
+
    #update layout
-fig4.update_layout({ 'title': {'text':  label + ' trend in ' +  municipality , 'x': 0.5},
+fig4.update_layout({ #'title': {'text':  label + ' trend in ' +  municipality , 'x': 0.5},
                   })
 
 #st.plotly_chart(fig4)
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
+col9.plotly_chart(fig4, use_container_width=True) 
 
