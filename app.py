@@ -31,7 +31,7 @@ import streamlit as st
 ## 1.2 Load data
 
 
-# In[21]:
+# In[23]:
 
 
 #load cleaned dataset
@@ -41,7 +41,7 @@ data = pd.read_csv('data.csv')
 data.head()
 
 
-# In[22]:
+# In[24]:
 
 
 #load pivoted dataset
@@ -49,7 +49,7 @@ data_pivot = pd.read_csv('data_pivot.csv',  dtype={'id': 'str'})
 data_pivot.head()
 
 
-# In[6]:
+# In[25]:
 
 
 #geojson
@@ -60,13 +60,13 @@ for feature in municipality_json['features']:
     feature['id'] = feature['properties']['code']
 
 
-# In[7]:
+# In[26]:
 
 
 # 2 Streamlit settings
 
 
-# In[8]:
+# In[27]:
 
 
 # page conf
@@ -89,7 +89,7 @@ t2.title("Statistics Netherlands - Reported Thefts")
 
 
 
-# In[18]:
+# In[28]:
 
 
 #create theft selectbox
@@ -104,7 +104,7 @@ theft = st.sidebar.selectbox('Type of theft', (thefts))
 #st.write('You selected:',theft)
 
 
-# In[12]:
+# In[29]:
 
 
 municipalities = data['municipality'].unique().tolist()
@@ -217,10 +217,10 @@ col4.plotly_chart(fig2, use_container_width=True)
 col6, col7 = st.columns(2)
 
 with col6:
-    st.subheader('Registered '+ theft + ' in The Netherlands in '+ str(year))
+    st.subheader('Registered '+ theft + ' in '+ str(year))
     
 with col7:
-    st.subheader('Top 10 municipalities with the highest rate of ' + theft + ' in ' + str(year))
+    st.subheader('Top 10 manunicpalities with the higest rate of '+ theft)
 
 
 # In[27]:
