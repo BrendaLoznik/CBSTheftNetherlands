@@ -36,8 +36,8 @@ import streamlit as st
 
 #load cleaned dataset
 #data = pd.read_csv(r'D:\Jupyter Notebooks\cbs-diefstal\data\data.csv')
-#data = pd.read_csv('data\data.csv')
-data = pd.read_csv('data.csv')
+data = pd.read_csv('data\data.csv')
+#data = pd.read_csv('data.csv')
 data.head()
 
 
@@ -45,7 +45,8 @@ data.head()
 
 
 #load pivoted dataset
-data_pivot = pd.read_csv('data_pivot.csv',  dtype={'id': 'str'})
+#data_pivot = pd.read_csv('data_pivot.csv',  dtype={'id': 'str'})
+data_pivot = pd.read_csv('data\data_pivot.csv',  dtype={'id': 'str'})
 data_pivot.head()
 
 
@@ -78,7 +79,7 @@ st.set_page_config(
 
 t1, t2 = st.columns((0.1,1)) #0.07,1
 
-t1.image('index.png', width = 120)
+t1.image('cbs_icon.png', width = 120)
 t2.title("Statistics Netherlands - Reported Thefts")
 #t2.markdown(" **tel:** 01392 451192 **| website:** https://www.swast.nhs.uk **| email:** mailto:data.science@swast.nhs.uk")
 
@@ -86,7 +87,7 @@ t2.title("Statistics Netherlands - Reported Thefts")
 # In[ ]:
 
 
-
+st.sidebar.title("Menu")
 
 
 # In[28]:
@@ -136,7 +137,13 @@ top =  st.sidebar.slider('How many types of theft do you want to see?', 1, 10, 5
 # In[ ]:
 
 
-
+st.sidebar.title("References")
+st.sidebar.write(
+        """Data: [CBS Statline 2022](https://opendata.cbs.nl/statline/#/CBS/nl/dataset/83651NED/table?fromstatweb)
+        """)
+st.sidebar.write(
+        """Source code: [Github](https://github.com/BrendaLoznik/CBSTheftNetherlands/blob/master/app.py)
+        """)
 
 
 # In[ ]:
@@ -220,7 +227,7 @@ with col6:
     st.subheader('Registered '+ theft + ' in '+ str(year))
     
 with col7:
-    st.subheader('Top 10 manunicpalities with the higest rate of '+ theft)
+    st.subheader('Top 10 manunicpalities with the higest rate of '+ theft + ' in ' + year) 
 
 
 # In[27]:
