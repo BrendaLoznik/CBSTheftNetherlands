@@ -4,18 +4,7 @@
 # In[1]:
 
 
-# 1 Housekeeping
-
-
-# In[2]:
-
-
-## 1.1 Load libraries
-
-
-# In[1]:
-
-
+#1.1 LOAD LIBRARIES
 import pandas as pd
 import numpy as np
 import plotly.express as px
@@ -25,34 +14,24 @@ import mapbox
 import streamlit as st
 
 
-# In[2]:
-
-
-## 1.2 Load data
-
-
 # In[23]:
 
 
-#load cleaned dataset
-#data = pd.read_csv(r'D:\Jupyter Notebooks\cbs-diefstal\data\data.csv')
-#data = pd.read_csv('data\data.csv')
+#1.2 LOAD DATA I
 data = pd.read_csv('data.csv')
-data.head()
 
 
 # In[24]:
 
 
-#load pivoted dataset
+#1.2 LOAD DATA II
 data_pivot = pd.read_csv('data_pivot.csv',  dtype={'id': 'str'})
-#data_pivot = pd.read_csv('data\data_pivot.csv',  dtype={'id': 'str'})
-data_pivot.head()
 
 
 # In[25]:
 
 
+#1.2 LOAD DATA III
 #geojson
 municipality_json = geojson.load(open('geojson_gemeente_2020.geojson', 'r'))
 
@@ -61,82 +40,47 @@ for feature in municipality_json['features']:
     feature['id'] = feature['properties']['code']
 
 
-# In[26]:
-
-
-# 2 Streamlit settings
-
-
 # In[27]:
 
 
-# page conf
+#2 STREAMLIT SETTINGS
+
+# PAGE CONFIGURATION
 st.set_page_config(
     page_title="Thefts in The Netherlands",
     page_icon=':cop:',
     layout="wide",  # centered
     initial_sidebar_state="auto")  # collapsed
 
+#CREATE COLUMNS
 t1, t2 = st.columns((0.1,1)) #0.07,1
-
 t1.image('cbs_icon.png', width = 120)
 t2.title("Statistics Netherlands - Reported Thefts")
-#t2.markdown(" **tel:** 01392 451192 **| website:** https://www.swast.nhs.uk **| email:** mailto:data.science@swast.nhs.uk")
-
-
-# In[ ]:
-
-
-st.sidebar.title("Menu")
 
 
 # In[28]:
 
 
-#create theft selectbox
-#theft = st.sidebar.selectbox('Type of theft', ('bike theft', 'moped theft', 'motorcycle/scooter theft',
-     # 'car theft', 'boat theft', 'animal theft', 'street robbery',
+#CREATE SIDEBAR
+st.sidebar.title("Menu")
 
-    # 'pickpocketing', 'shoplifting', 'heist'))
+#THEFT SELECT BOX
 thefts = data['theft'].unique()       
 theft = st.sidebar.selectbox('Type of theft', (thefts))
 
-
-#st.write('You selected:',theft)
-
-
-# In[29]:
-
-
+#MUNICIPALITY SELEX TBOX
 municipalities = data['municipality'].unique().tolist()
 default_ix = municipalities.index('Amsterdam')
 municipality = st.sidebar.selectbox('Select a municipality', municipalities, index=default_ix)
 
-
-# In[20]:
-
-
-#create theft selectbox
-#year= st.sidebar.selectbox('Year', ('2018', '2019', '2020', '2021'))
+#YEAR SELECT BOX
 year= st.sidebar.radio(label ='Year', options = ['2018', '2019', '2020', '2021'], index =2)
 st.write('<style>div.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
 
-#st.write('You selected:',year)
-
-
-# In[21]:
-
-
-#create top x slider
+#TOP X SLIDER
 top =  st.sidebar.slider('How many types of theft do you want to see?', 1, 10, 5)
-#st.write("You selected top ", top ,' thefts')
 
-
-# 
-
-# In[ ]:
-
-
+# ADD REFERENCES TO CODE AND DATA
 st.sidebar.title("References")
 st.sidebar.write(
         """Data: [CBS Statline 2022](https://opendata.cbs.nl/statline/#/CBS/nl/dataset/83651NED/table?fromstatweb)
@@ -152,11 +96,12 @@ st.sidebar.write(
 
 
 
-# ## 2.1 What is the most common type of theft?
-
 # In[ ]:
 
 
+#3.1 COMMON TYPES OF THEFT IN THE NETHERLANDS
+
+#CREATE COLUMNS
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -167,33 +112,19 @@ with col2:
 
 with col3:
     st.write(' ')
-
-
-# In[ ]:
-
-
+    
+#CREATE COLUMNS
 col4, col5 = st.columns([3, 0.1])
 
-
-# In[ ]:
-
-
-#create df
+#CREATE DF
 common_crime = data.groupby(['year', 'theft'])['count'].sum().reset_index()
 common_crime['rank'] = common_crime.groupby(by=['year'])['count'].transform(lambda x: x.rank(ascending=False))
 common_crime['year'] = common_crime['year'].astype('str')
 common_crime = common_crime.sort_values(['year', 'rank'])
-
-#select top rank
-#top = int(top)
 top_rank = np.arange(1, top+1 , 1).tolist()
 common_crime= common_crime[(common_crime['rank'].isin(top_rank))]
 
-
-# In[ ]:
-
-
-#create bar plot
+#CREATE PLOT
 fig2 = px.bar(data_frame = common_crime, 
              x = 'year',
              y = 'count',
@@ -216,11 +147,12 @@ fig2.update_layout({ #'title': {'text': 'Top ' + str(top) + ' most common thefts
 col4.plotly_chart(fig2, use_container_width=True) 
 
 
-# ## 2.2 Where do the thefts occure?
-
 # In[ ]:
 
 
+#3.2 WHERE DO THEFTS OCCURE
+
+#CREATE COLUMNS
 col6, col7 = st.columns(2)
 
 with col6:
@@ -229,22 +161,14 @@ with col6:
 with col7:
     st.subheader('Top 10 manunicpalities with the higest rate of '+ theft + ' in ' + year) 
 
-
-# In[27]:
-
-
-#create a custom df
+#CREATE DF
 data_graph = data_pivot.copy()
 data_graph ['year'] = data_graph ['year'].astype('str')
 data_graph = data_graph  [data_graph ['year']==year]
 data_graph = data_graph[['id', 'province', 'municipality', 'year', theft]]
 data_graph  ['log scale'] = np.log10(data_graph [theft]+1)
 
-
-# In[29]:
-
-
-#create map
+#CREATE PLOT
 fig1 = px.choropleth_mapbox(data_frame = data_graph,
               locations= "id",
               geojson = municipality_json,
@@ -279,6 +203,9 @@ col6.plotly_chart(fig1, use_container_width=True)
 # In[ ]:
 
 
+#3.3 TOP 10 MUNICIPALITIES
+
+#CREATE DF
 worst_crime = data.groupby(['year',  'municipality', 'theft'])['count'].sum().reset_index()
 worst_crime = worst_crime.sort_values(['year', 'theft', 'count'], ascending=[True,False, False]) 
 worst_crime ['rank'] = worst_crime .groupby(by=['year', 'theft'])['count'].transform(lambda x: x.rank(ascending=False))
@@ -288,11 +215,7 @@ worst_crime = worst_crime[(worst_crime['theft']== theft)  & (worst_crime['year']
 worst_crime  = worst_crime[0:10]
 worst_crime   = worst_crime.sort_values('rank', ascending = False)
 
-
-# In[ ]:
-
-
-#create bar plot
+#CREATE PLOT
 fig5 = px.bar(data_frame = worst_crime ,
              y = 'municipality',
              x = 'count',
@@ -319,7 +242,9 @@ col7.plotly_chart(fig5, use_container_width=True)
 # In[ ]:
 
 
-#set custom label
+#3.4 CRIME IN YOUR MUNICIPALITY
+
+#SET CUSTOM LABELS
 if theft =='street robbery':
     label = 'Street robbery'
 elif theft == 'shoplifting':
@@ -342,11 +267,8 @@ elif theft == 'animal theft':
     label = 'Animal theft'
 else:
     label = 'other'
-
-
-# In[ ]:
-
-
+    
+#CREATE COLUMNS
 col8, col9 = st.columns(2)
 
 with col8:
@@ -354,23 +276,15 @@ with col8:
     
 with col9:
     st.subheader( label + ' trend in ' +  municipality )
-
-
-# In[33]:
-
-
-#create df
+    
+#CREATE DF
 municipality_crime = data.groupby(['year',  'municipality', 'theft'])['count'].sum().reset_index()
 municipality_crime ['rank'] = municipality_crime .groupby(by=['municipality', 'year'])['count'].transform(lambda x: x.rank(ascending=False))
 municipality_crime ['year'] = municipality_crime ['year'].astype('str')
 municipality_crime = municipality_crime[(municipality_crime['year']==year) & (municipality_crime['municipality']==municipality)]
 municipality_crime = municipality_crime .sort_values('rank')
 
-
-# In[34]:
-
-
-#create bar plot
+#CREATE PLOT
 fig3 = px.bar(data_frame = municipality_crime,
              x = 'theft',
              y = 'count',
@@ -391,21 +305,18 @@ fig3.update_layout({ #'title': {'text': 'Most common theft crimes in ' + municip
 col8.plotly_chart(fig3, use_container_width=True) 
 
 
-# ## 2.5 Municipality theft trends
-
 # In[46]:
 
 
-#create dataset
+#3.5 tHEFT TREND
+
+#CREATE DATASET
 municipality_trend = data.groupby(['year',  'municipality', 'theft'])['count'].sum().reset_index()
 municipality_trend  =municipality_trend .sort_values(['municipality', 'theft', 'year','count'], ascending=[True,True, True, True]) 
 municipality_trend ['year'] = municipality_trend['year'].astype('str')
 municipality_trend = municipality_trend[(municipality_trend ['municipality']== municipality) & (municipality_trend ['theft']== theft)  ]
 
-
-# In[36]:
-
-
+#CREATE PLOT
 fig4 = px.line(data_frame = municipality_trend,
              x= 'year',
              y = 'count',
