@@ -36,8 +36,8 @@ import streamlit as st
 
 #load cleaned dataset
 #data = pd.read_csv(r'D:\Jupyter Notebooks\cbs-diefstal\data\data.csv')
-data = pd.read_csv('data\data.csv')
-#data = pd.read_csv('data.csv')
+#data = pd.read_csv('data\data.csv')
+data = pd.read_csv('data.csv')
 data.head()
 
 
@@ -45,8 +45,8 @@ data.head()
 
 
 #load pivoted dataset
-#data_pivot = pd.read_csv('data_pivot.csv',  dtype={'id': 'str'})
-data_pivot = pd.read_csv('data\data_pivot.csv',  dtype={'id': 'str'})
+data_pivot = pd.read_csv('data_pivot.csv',  dtype={'id': 'str'})
+#data_pivot = pd.read_csv('data\data_pivot.csv',  dtype={'id': 'str'})
 data_pivot.head()
 
 
